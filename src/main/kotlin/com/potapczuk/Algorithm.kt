@@ -8,14 +8,23 @@ fun main() {
 }
 
 class Algorithm() {
-    fun start() {
-        val filename = getFileName()
+    private val filenames = setOf("a_example.txt",
+                            "b_lovely_landscapes.txt",
+                            "c_memorable_moments.txt",
+                            "d_pet_pictures.txt",
+                            "e_shiny_selfies.txt")
 
+    fun start() {
+        for (filename in filenames)
+            executeAlgorithmForFilename(filename)
+    }
+
+    private fun executeAlgorithmForFilename(filename: String) {
         log("Running $filename")
 
         timeIt("Total time taken") {
             val slides = timeIt("Time on getSlides") {
-                 getSlides(filename)
+                getSlides(filename)
             }
 
             val transitionSlides = timeIt("Time on getTransitionSlidesByBuckets") {
@@ -26,17 +35,8 @@ class Algorithm() {
 
             Parser().saveFile(filename, transitionSlides)
         }
-    }
 
-    private fun getFileName(): String {
-        var filename = ""
-        filename = "a_example.txt"
-        filename = "b_lovely_landscapes.txt"
-//        filename = "c_memorable_moments.txt"
-//        filename = "d_pet_pictures.txt"
-//        filename = "e_shiny_selfies.txt"
-
-        return filename
+        println("\n\n")
     }
 
     private fun getSlides(filename: String): List<Slide> {
@@ -69,7 +69,7 @@ class Algorithm() {
                     )
 
                     if (allVerticals.size % 500 == 0)
-                        log(allVerticals.size.toString())
+                        log("vertical remaining: ${allVerticals.size}")
                 }
             }
         }
@@ -85,8 +85,12 @@ class Algorithm() {
         allPhotoSlides.filter { it.orientation != Orientation.VERTICAL } + verticalSlides
 
     private suspend fun getTransitionSlidesByBuckets(slides: List<Slide>): List<Slide> {
+        val bucketSize = 0
+
+        if (bucketSize == 0)
+            return getTransitionSlides(slides, 0)
+
         val transitionSlides = mutableListOf<Slide>()
-        val bucketSize = 4
         val buckets = slides.groupBy {
             it.tags.size + (bucketSize - it.tags.size % bucketSize)
         }
